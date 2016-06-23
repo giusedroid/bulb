@@ -5,3 +5,4 @@ var knex = require('knex')(dbConfig[env]);
 module.exports = knex;
 
 knex.migrate.latest([dbConfig]);
+process.exit(0);

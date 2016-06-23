@@ -5,6 +5,7 @@ PKG_DEPENDENCIES=(
     'git'
     'g++'
     'nodejs'
+    'npm'
     'postgresql'
     'postgresql-contrib'
 )
@@ -18,11 +19,14 @@ apt-get install -y ${PKG_DEPENDENCIES[@]}
 sudo -u postgres psql -c "CREATE USER bulb WITH PASSWORD 'bulb';"
 sudo -u postgres psql -c "CREATE DATABASE bulb_db OWNER bulb;"
 
-#cd /vagrant_data
-#git clone https://github.com/giusedroid/bulb.git
-#cd bulb/data/bulb-api
+cd /vagrant_data
+cd bulb/data/bulb-api
 
-#npm install
-#npm install knex -g
+npm install
+npm install knex -g
+npm install express-generator -g
+npm install nodemon -g
+
+
 
 #npm start
