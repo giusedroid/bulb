@@ -26,7 +26,11 @@ npm install
 npm install knex -g
 npm install express-generator -g
 npm install nodemon -g
+# make symbolic link to node instead of nodejs
+ln -s /usr/bin/nodejs /usr/bin/node
 
+knex migrate:latest
+knex seed:run
 
 
 #npm start
