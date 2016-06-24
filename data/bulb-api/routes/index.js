@@ -105,7 +105,7 @@ router.route('/api/asset')
 	})
 	.save()
 	.then(function( asset ){
-		res.json({error:false, id: asset.get('id')})
+		res.json({error:false, id: asset.get('id')});
 	})
 	.catch(function(err){
 		console.log(err);
@@ -172,7 +172,40 @@ router.route('/api/allocation')
 	});
 })
 .post( function(req, res, next){
-	
+	var begins = new Date( req.body.begins);
+	var ends   = new Date( req.body.ends);
+
+	new models.User().where({id: req.body.userId}).fetch()
+	.then(function(user){
+		new models.Asset().where({id: req.body.assetId}).fetch()
+		.then(function(asset){
+			new models.Allocation().where({asset_id: asset.get('id')})
+			.where(begins, "<=", "ends")
+			.where(ends,   ">=", "begins")
+			.fetchAll()
+			.then( function(allocation){
+				if( allocation.length === 0){
+					models.Allocation.forge({
+						name: req.body.name,
+						begins: begins,
+						ends: ends,
+						user_id: asset.get('id'),
+						asset_id: asset.get('id')
+					}).save()
+					.then(function(allocation){res.json({error:false, id: allocation.get('id')})})
+					.catch(function(err){res.status(500).json({error:true, message:err.message});})
+				}else{
+					res.json({
+						error:true, 
+						data:{
+							mesage:"Could not create allocation because it overlaps with other.",
+							allocations:allocation.toJSON()
+						}
+					});
+				}
+			}).catch(function(err){ res.status(500).json({error:true, message:err.message});});
+		}).catch(function(err){ res.status(500).json({error:true, message:err.message});});
+	}).catch(function(err){ res.status(500).json({error:true, message:err.message});});
 });
 
 // [R] GET allocation
@@ -188,7 +221,23 @@ router.route('/api/allocation/:id')
 	});
 })
 .put( function(req, res, next){
-	
+	var user  = new models.User().where({id:req.params.id}).fetch().then(function(user){
+		return user.toJSON();
+	}).catch(function(err){
+		console.log(err);
+		res.status(500).json({error:true, message: err.message});
+	});
+
+	var asset = new models.Asset().where({id:req.params.id}).fetch().then(function(asset){
+		return asset.toJSON();
+	}).catch(function(err){
+		console.log(err);
+		res.status(500).json({error:true, message: err.message});
+	});
+
+
+
+
 })
 .delete( function(req, res, next){
 	models.Allocation.forge({id: req.params.id}).fetch()
@@ -203,4 +252,15 @@ router.route('/api/allocation/:id')
 	});
 });
 
+
+router.get("/provaWhere", function(req, res, next){
+	new models.Asset().where("id", ">=", "6").where("id", "<=","8").fetchAll()
+	.then(function(all){
+		res.json(all.toJSON());
+	})
+	.catch( function(err){
+		console.log(err);
+		res.status(500).json({error: true, message: err.message});
+	});
+})
 module.exports = router;

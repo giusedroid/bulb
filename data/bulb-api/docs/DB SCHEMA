@@ -1,0 +1,36 @@
+You are now connected to database "bulb_db" as user "postgres".
+bulb_db=# \dt
+               List of relations
+ Schema |         Name         | Type  | Owner
+--------+----------------------+-------+-------
+ public | allocations          | table | bulb
+ public | apikeys              | table | bulb
+ public | assets               | table | bulb
+ public | knex_migrations      | table | bulb
+ public | knex_migrations_lock | table | bulb
+ public | users                | table | bulb
+(6 rows)
+
+bulb_db=# select * from allocations;
+ id | name | begins | ends | user_id | asset_id
+----+------+--------+------+---------+----------
+(0 rows)
+
+bulb_db=# select * from users;
+ id | firstname | lastname | email
+----+-----------+----------+-------
+  5 | Jack      | Rodie    | nope
+(1 row)
+
+bulb_db=# select * from assets;
+ id |  name   | type  |    attributes
+----+---------+-------+-------------------
+  2 | asset1  | type2 | {"attrib":"nope"}
+  3 | asset22 | type3 | {"attrib":"nope"}
+  4 | asset22 | type3 | {"attrib":"nope"}
+  5 | asset22 | type3 | {"attrib":"nope"}
+  6 | asset22 | type3 | {"attrib":"nope"}
+  7 | asset22 | type3 | {"attrib":"nope"}
+  8 | asset22 | type3 | {"attrib":"nope"}
+  9 | asset22 | type3 | {"attrib":"nope"}
+(8 rows)

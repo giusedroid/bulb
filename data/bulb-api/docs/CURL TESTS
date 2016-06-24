@@ -1,0 +1,7 @@
+CURL TEST
+
+curl -X POST --data 'name=some%30name&userId=1&assetId=1&begins="Fri Jun 24 2016 18:43:50 GMT+0200"&ends="Fri Jun 25 2016 18:43:50 GMT+0200"' http://localhost:3000/api/allocation
+
+curl -X POST --data 'name=POD&type=epic&attributes={"attrib":"nope"}' http://localhost:3000/api/asset
+
+curl -X POST --data 'firstname=Kyle&lastname=Gass&email=nope' http://localhost:3000/api/user
