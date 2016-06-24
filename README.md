@@ -2,8 +2,7 @@
 
 - 23/06/2016 
 	17:15 - 20.30 
-	Infrastructure setup with vagrant + bash scripts. I've chosen Ubuntu 14.04 LTS as dev/prod machine
-	because I already had that VB box and saved me considerable download time, plus no constraints.
+	Infrastructure setup with vagrant + bash scripts. Ubuntu 14.04 LTS as dev/prod machine.
 
 	Setup of git repo. Yeah, one repo because I wanted to deliver both app and server.
 	Possible improvement --> Docker maybe?
@@ -14,3 +13,6 @@
 	Probably passport with api-key strategy for auth.
 
 
+- 24/06/2016
+	12:30 - 13:30
+	Routes for Users, Assets and stub for Allocations
