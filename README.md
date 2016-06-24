@@ -16,3 +16,7 @@
 - 24/06/2016
 	12:30 - 13:30
 	Routes for Users, Assets and stub for Allocations
+
+- 24/06/2016
+	17:30 - 19:30
+	Routes for Allocations (part II), allocations check overlapping algorithm.  
