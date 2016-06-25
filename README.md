@@ -24,3 +24,7 @@
 - 25/06/2016
 	10:30 - 12:00
 	Routes for Allocations (part III), update route *PUT*  
+
+- 25/06/2016
+	18:00 - 20:30
+	Filters for Allocations and Authentication System via API key
