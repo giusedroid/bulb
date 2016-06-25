@@ -5,6 +5,12 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var Promise = require('bluebird');
+var appConfig = require('./config');
+var models = require('./models/models');
+var passport = require('passport');
+var LocalStrategy = require('passport-localapikey').Strategy;
+
 var routes = require('./routes/index');
 //var users = require('./routes/users');
 
@@ -23,6 +29,17 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
+
+// configuring passport with local api key strategy
+passport.use(new LocalStrategy(
+  function(apikey, done) {
+    models.ApiKey.where({key: apikey}).fetch().asCallback(function(err, key){
+      if (err) { return done(err); }
+      if (!key) { return done(null, false); }
+      return done(null, key);
+    });
+  }
+));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

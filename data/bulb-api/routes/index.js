@@ -3,6 +3,7 @@ var router = express.Router();
 var Promise = require('bluebird');
 var appConfig = require('../config');
 var models = require('../models/models');
+var passport = require('passport');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -16,7 +17,8 @@ router.get('/', function(req, res, next) {
 // [R] GET  [user]
 // [C] POST user
 router.route('/api/user')
-.get(function(req, res, next){
+.get(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+	function(req, res, next){
 	new models.User().fetchAll().then(function(users){
 		res.json({error:false, data:users.toJSON()})
 	}).catch(function(err){
@@ -254,6 +256,80 @@ router.route('/api/allocation')
 	}).catch(function(err){ res.status(500).json({error:true, message:appConfig.ERROR.not_found("", err.message)});}); // USER NOT FOUND
 });
 
+// [R] GET  [active allocation]
+// [R] GET  [allocation] depending on user id
+// [R] GET  [allocation] depending on asset id
+// [R] GET  [active allocation] depending on user id
+// [R] GET  [active allocation] depending on asset id
+
+router.route("/api/allocation/active")
+.get(function(req, res, next){
+	var date = new Date();
+	new models.Allocation()
+	.where("begins", "<=", date)
+	.where("ends", ">=", date)
+	.fetchAll().then(function(allocations){
+		res.send(allocations.toJSON());
+	}).catch(function(err){
+		console.log(err);
+		res.status(500).json({error:true, message: err.message});
+	});
+});
+
+router.route("/api/allocation/user/:id")
+.get(function(req, res, next){
+	new models.Allocation()
+	.where({user_id: req.params.id})
+	.fetchAll().then(function(allocations){
+		res.send(allocations.toJSON());
+	}).catch(function(err){
+		console.log(err);
+		res.status(500).json({error:true, message: err.message});
+	});
+});
+
+router.route("/api/allocation/asset/:id")
+.get(function(req, res, next){
+	new models.Allocation()
+	.where({asset_id: req.params.id})
+	.fetchAll().then(function(allocations){
+		res.send(allocations.toJSON());
+	}).catch(function(err){
+		console.log(err);
+		res.status(500).json({error:true, message: err.message});
+	});
+});
+
+router.route("/api/allocation/user/:id/active")
+.get(function(req, res, next){
+	var date = new Date();
+	new models.Allocation()
+	.where({user_id: req.params.id})
+	.where("begins", "<=", date)
+	.where("ends", ">=", date)
+	.fetchAll().then(function(allocations){
+		res.send(allocations.toJSON());
+	}).catch(function(err){
+		console.log(err);
+		res.status(500).json({error:true, message: err.message});
+	});
+});
+
+router.route("/api/allocation/asset/:id/active")
+.get(function(req, res, next){
+	var date = new Date();
+	new models.Allocation()
+	.where({user_id: req.params.id})
+	.where("begins", "<=", date)
+	.where("ends", ">=", date)
+	.fetchAll().then(function(allocations){
+		res.send(allocations.toJSON());
+	}).catch(function(err){
+		console.log(err);
+		res.status(500).json({error:true, message: err.message});
+	});
+});
+
 // [R] GET allocation
 // [U] PUT allocation
 // [D] DELETE allocation
@@ -296,7 +372,7 @@ router.route('/api/allocation/:id')
 			new models.Asset().where({id: req.body.asset_id || currentAllocation.get('asset_id')}).fetch()
 			.then(function(asset){
 				console.log("Asset Found");
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 				new models.Allocation()
 				.where({asset_id: asset.get('id')})
 				.where("id","<>", req.params.id)
@@ -326,7 +402,7 @@ router.route('/api/allocation/:id')
 						});
 					}
 				}).catch(function(err){ res.status(500).json({error:true, message:err.message});}); 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 			})
 			.catch(function(err){
 				res.status(500).json({
@@ -357,24 +433,23 @@ router.route('/api/allocation/:id')
 	models.Allocation.forge({id: req.params.id}).fetch()
 	.then(function(allocation){
 		allocation.destroy().then(function(){
-		res.json({error:false, data:"Allocation successfully deleted."})
+		res.json({error:false, data:appConfig.SUCCESS.ok_deleted("Allocation")})
 	});
 	})
 	.catch(function(err){
 		console.log(err);
-		res.status(500).json({error: true, message: err.message});
+		res.status(500).json({error: true, message: appConfig.ERROR.not_deleted("Allocation", err.message)});
 	});
 });
 
+router.get('/api/unauthorized', function(req, res, next){
+	res.json({message: "YOU SHALL NOT PASS"});
+});
 
-router.get("/provaWhere", function(req, res, next){
-	new models.Asset().where("id", ">=", "6").where("id", "<=","8").fetchAll()
-	.then(function(all){
-		res.json(all.toJSON());
-	})
-	.catch( function(err){
-		console.log(err);
-		res.status(500).json({error: true, message: err.message});
-	});
-})
+router.post('/api/authenticate', 
+  passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+  function(req, res, next) {
+    res.json({ message: "Authenticated" })
+ });
+
 module.exports = router;
