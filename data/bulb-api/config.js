@@ -17,4 +17,22 @@ DB.connectionString = 	"postgres://" + DB.connection.user + ":" +DB.connection.p
 
 config.DB = DB;
 
+var ERROR = {
+	NO_API_KEY				: "API key not allowed.",
+	not_found 				: function( what, message ){ return what + " could not be found.  \n Error: " + message;},
+	not_updated 			: function( what, message ){ return what + " could not be updated.\n Error: " + message;},
+	not_deleted				: function( what, message ){ return what + " could not be deleted.\n Error: " + message;},
+	not_created				: function( what, message ){ return what + " could not be created.\n Error: " + message;}
+}
+
+config.ERROR = ERROR;
+
+var SUCCESS = {
+	ok_created				: function( what ){ return what + " successfully created." },
+	ok_updated				: function( what ){ return what + " successfully updated." },
+	ok_deleted				: function( what ){ return what + " successfully deleted." }
+}
+
+config.SUCCESS = SUCCESS;
+
 module.exports = config;

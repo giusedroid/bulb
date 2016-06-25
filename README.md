@@ -19,4 +19,8 @@
 
 - 24/06/2016
 	17:30 - 19:30
-	Routes for Allocations (part II), allocations check overlapping algorithm.  
+	Routes for Allocations (part II), allocations check overlapping algorithm.
+
+- 25/06/2016
+	10:30 - 12:00
+	Routes for Allocations (part III), update route *PUT*  
