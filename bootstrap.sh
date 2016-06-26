@@ -24,14 +24,13 @@ cd bulb/data/bulb-api
 
 npm install
 npm install knex -g
-npm install express-generator -g
 npm install nodemon -g
 npm install jasmine-node -g
 # make symbolic link to node instead of nodejs
 ln -s /usr/bin/nodejs /usr/bin/node
 
-knex migrate:latest
-knex seed:run
+#sudo -u vagrant knex migrate:latest
+#sudo -u vagrant knex seed:run
 
-
+#npm test
 #npm start

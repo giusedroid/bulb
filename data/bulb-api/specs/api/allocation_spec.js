@@ -85,20 +85,6 @@ frisby.create("support User")
 				user: Object,
 				asset:Object
 			}).afterJSON(function(){
-				frisby.create("PUT Allocation authenticated")
-				.put( specConfig.API.url + "/allocation/" + allocation.id + specConfig.API.getAuthString(), {
-					name:"FRISBY",
-//					begins: new Date(now.setYear(now.getYear() + 1 )),
-//					ends: 	new Date(tom.setYear(now.getYear() + 1 )),
-					userId: user.id,
-					assetId: asset.id
-				})
-				.expectStatus(200)
-				.expectJSONTypes({
-					error: Boolean,
-					id : Number
-				})
-				.afterJSON(function(){
 					frisby.create("DELETE Allocation authenticated")
 					.delete( specConfig.API.url + "/allocation/" + allocation.id + specConfig.API.getAuthString())
 					.expectStatus(200)
@@ -107,8 +93,6 @@ frisby.create("support User")
 						data : String
 					})
 					.toss();
-				})
-				.toss();
 			})
 			.toss();
 		})

@@ -31,5 +31,6 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision "shell", path: "bootstrap.sh"
+  config.vm.provision "shell", path: "startup.sh", privileged: false
   
 end
