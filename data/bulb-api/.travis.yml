@@ -1,0 +1,25 @@
+language: node_js
+
+node_js:
+  - 0.10
+
+services:
+  - postgresql
+
+before_script:
+  - psql -c 'CREATE USER bulb WITH PASSWORD 'bulb';' -U postgres
+  - psql -c 'CREATE DATABASE bulb_db OWNER bulb;' -U postgres
+  - npm install knex -g
+  - npm install express-generator -g
+  - npm install jasmine-node -g
+  - ln -s /usr/bin/nodejs /usr/bin/node
+  - knex migrate:latest
+  - knex seed:run
+
+notifications:
+  email:
+    recipients:
+      - builds@bulb.com
+      - devops@bulb.com
+    on_success: always 
+    on_failure: always

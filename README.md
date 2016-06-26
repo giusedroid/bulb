@@ -14,6 +14,9 @@
 
 
 - 24/06/2016
+	6:00 - 12:00
+	Brexit? Really?! Spent most of my time crying.
+
 	12:30 - 13:30
 	Routes for Users, Assets and stub for Allocations
 
@@ -34,3 +37,8 @@
 	Model Refactor
 
 	Solved some issues with Vagrant machine IP
+	Authentication for all routes.
+
+	15:00 - 17:00
+	Implemented Specs for User
+	Travis file
