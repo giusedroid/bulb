@@ -28,3 +28,9 @@
 - 25/06/2016
 	18:00 - 20:30
 	Filters for Allocations and Authentication System via API key
+
+- 26/06/2016
+	9:00 - 12:00
+	Model Refactor
+
+	Solved some issues with Vagrant machine IP

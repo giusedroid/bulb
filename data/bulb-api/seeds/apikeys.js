@@ -1,4 +1,5 @@
 var Promise = require('bluebird');
+var models = require('../models/models');
 
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
@@ -6,9 +7,7 @@ exports.seed = function(knex, Promise) {
     .then(function () {
       return Promise.all([
         // Inserts seed entries
-        knex('apikeys').insert({uid: 1, key: 'bulb-ok_pass1'}),
-        knex('apikeys').insert({uid: 2, key: 'bulb-ok_pass2'}),
-        knex('apikeys').insert({uid: 3, key: 'bulb-ok_pass3'})
+        models.ApiKey.forge({key:'mellon'}).save()
       ]);
     });
 };

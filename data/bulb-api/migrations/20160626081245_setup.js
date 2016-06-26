@@ -27,8 +27,8 @@ exports.up = function(knex, Promise) {
   			table.string('name');
   			table.dateTime('begins');
   			table.dateTime('ends');
-  			table.integer('user_id');
-  			table.integer('asset_id');
+  			table.integer('user_id').references('users.id');
+  			table.integer('asset_id').references('assets.id');
   		})
   	]);
 };

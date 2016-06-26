@@ -26,7 +26,8 @@ router.route('/api/user')
 		res.status(500).json({error:true, message: err.message});
 	});
 })
-.post( function(req, res, next){
+.post(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	models.User.forge({
 		firstname: req.body.firstname,
 		lastname: req.body.lastname,
@@ -46,7 +47,8 @@ router.route('/api/user')
 // [U] PUT user
 // [D] DELETE user
 router.route('/api/user/:id')
-.get(function(req, res, next){
+.get(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	new models.User().where({id:req.params.id}).fetch().then(function(users){
 		res.send(users.toJSON());
 	}).catch(function(err){
@@ -54,7 +56,8 @@ router.route('/api/user/:id')
 		res.status(500).json({error:true, message: appConfig.ERROR.not_found("User", err.message)});
 	});
 })
-.put( function(req, res, next){
+.put(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	models.User.forge({id: req.params.id}).fetch()
 	.then(function(user){
 		user.save(
@@ -71,7 +74,8 @@ router.route('/api/user/:id')
 		res.status(500).json({error:true, message: appConfig.ERROR.not_updated("User", err.message)});
 	});
 })
-.delete( function(req, res, next){
+.delete(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	models.User.forge({id: req.params.id}).fetch()
 	.then(function(user){
 		user.destroy().then(function(){
@@ -92,7 +96,8 @@ router.route('/api/user/:id')
 // [R] GET  [asset]
 // [C] POST asset
 router.route('/api/asset')
-.get(function(req, res, next){
+.get(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	new models.Asset().fetchAll().then(function(assets){
 		res.json({error:false, data:assets.toJSON()})
 	}).catch(function(err){
@@ -100,7 +105,8 @@ router.route('/api/asset')
 		res.status(500).json({error:true, message: err.message});
 	});
 })
-.post( function(req, res, next){
+.post(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	models.Asset.forge({
 		name: req.body.name,
 		type: req.body.type,
@@ -120,7 +126,8 @@ router.route('/api/asset')
 // [U] PUT asset
 // [D] DELETE asset
 router.route('/api/asset/:id')
-.get(function(req, res, next){
+.get(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	new models.Asset().where({id:req.params.id}).fetch().then(function(assets){
 		res.send(assets.toJSON());
 	}).catch(function(err){
@@ -128,7 +135,8 @@ router.route('/api/asset/:id')
 		res.status(500).json({error:true, message: appConfig.ERROR.not_found("Asset", err.message)});
 	});
 })
-.put( function(req, res, next){
+.put(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	models.Asset.forge({id: req.params.id}).fetch()
 	.then(function(asset){
 		asset.save(
@@ -145,7 +153,8 @@ router.route('/api/asset/:id')
 		res.status(500).json({error:true, message: appConfig.ERROR.not_updated("Asset", err.message)});
 	});
 })
-.delete( function(req, res, next){
+.delete(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	models.Asset.forge({id: req.params.id}).fetch()
 	.then(function(asset){
 		asset.destroy().then(function(){
@@ -166,15 +175,17 @@ router.route('/api/asset/:id')
 // [R] GET  [allocation]
 // [C] POST allocation
 router.route('/api/allocation')
-.get(function(req, res, next){
-	new models.Allocation().fetchAll().then(function(allocations){
+.get(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
+	new models.Allocation().fetchAll({withRelated:['user','asset']}).then(function(allocations){
 		res.json({error:false, data:allocations.toJSON()})
 	}).catch(function(err){
 		console.log(err);
 		res.status(500).json({error:true, message: err.message});
 	});
 })
-.post( function(req, res, next){
+.post(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	// ARBITRARY ASSUMPTION :   dateTime objects represent a "positive" time interval
 	// 							that is begin < end.
 	//							This assumption is made upon the idea that in a real-life app the db
@@ -230,7 +241,7 @@ router.route('/api/allocation')
 			new models.Allocation().where({asset_id: asset.get('id')})
 			.where("ends", ">=", begins)
 			.where("begins", "<=", ends)
-			.fetchAll()
+			.fetchAll({withRelated:['user', 'asset']})
 			.then( function(allocation){
 				if( allocation.length === 0){
 					models.Allocation.forge({
@@ -246,14 +257,14 @@ router.route('/api/allocation')
 					res.json({
 						error:true, 
 						data:{
-							mesage: appConfig.ERROR.not_created("Allocation", err.message),
+							mesage: appConfig.ERROR.not_created("Allocation", "Target allocation overlaps with other"),
 							allocations:allocation.toJSON()
 						}
 					});
 				}
 			}).catch(function(err){ res.status(500).json({error:true, message:err.message});}); 
 		}).catch(function(err){ res.status(500).json({error:true, message:appConfig.ERROR.not_found("Asset", err.message)});}); // ASSET NOT FOUND
-	}).catch(function(err){ res.status(500).json({error:true, message:appConfig.ERROR.not_found("", err.message)});}); // USER NOT FOUND
+	}).catch(function(err){ res.status(500).json({error:true, message:appConfig.ERROR.not_found("User", err.message)});}); // USER NOT FOUND
 });
 
 // [R] GET  [active allocation]
@@ -263,12 +274,13 @@ router.route('/api/allocation')
 // [R] GET  [active allocation] depending on asset id
 
 router.route("/api/allocation/active")
-.get(function(req, res, next){
+.get(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	var date = new Date();
 	new models.Allocation()
 	.where("begins", "<=", date)
 	.where("ends", ">=", date)
-	.fetchAll().then(function(allocations){
+	.fetchAll({withRelated:['user', 'asset']}).then(function(allocations){
 		res.send(allocations.toJSON());
 	}).catch(function(err){
 		console.log(err);
@@ -277,10 +289,11 @@ router.route("/api/allocation/active")
 });
 
 router.route("/api/allocation/user/:id")
-.get(function(req, res, next){
+.get(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	new models.Allocation()
 	.where({user_id: req.params.id})
-	.fetchAll().then(function(allocations){
+	.fetchAll({withRelated:['user', 'asset']}).then(function(allocations){
 		res.send(allocations.toJSON());
 	}).catch(function(err){
 		console.log(err);
@@ -289,10 +302,11 @@ router.route("/api/allocation/user/:id")
 });
 
 router.route("/api/allocation/asset/:id")
-.get(function(req, res, next){
+.get(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	new models.Allocation()
 	.where({asset_id: req.params.id})
-	.fetchAll().then(function(allocations){
+	.fetchAll({withRelated:['user', 'asset']}).then(function(allocations){
 		res.send(allocations.toJSON());
 	}).catch(function(err){
 		console.log(err);
@@ -301,13 +315,14 @@ router.route("/api/allocation/asset/:id")
 });
 
 router.route("/api/allocation/user/:id/active")
-.get(function(req, res, next){
+.get(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	var date = new Date();
 	new models.Allocation()
 	.where({user_id: req.params.id})
 	.where("begins", "<=", date)
 	.where("ends", ">=", date)
-	.fetchAll().then(function(allocations){
+	.fetchAll({withRelated:['user', 'asset']}).then(function(allocations){
 		res.send(allocations.toJSON());
 	}).catch(function(err){
 		console.log(err);
@@ -316,13 +331,14 @@ router.route("/api/allocation/user/:id/active")
 });
 
 router.route("/api/allocation/asset/:id/active")
-.get(function(req, res, next){
+.get(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	var date = new Date();
 	new models.Allocation()
 	.where({user_id: req.params.id})
 	.where("begins", "<=", date)
 	.where("ends", ">=", date)
-	.fetchAll().then(function(allocations){
+	.fetchAll({withRelated:['user', 'asset']}).then(function(allocations){
 		res.send(allocations.toJSON());
 	}).catch(function(err){
 		console.log(err);
@@ -334,15 +350,17 @@ router.route("/api/allocation/asset/:id/active")
 // [U] PUT allocation
 // [D] DELETE allocation
 router.route('/api/allocation/:id')
-.get(function(req, res, next){
-	new models.Allocation().where({id:req.params.id}).fetch().then(function(allocations){
+.get(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
+	new models.Allocation().where({id:req.params.id}).fetch({withRelated:['user', 'asset']}).then(function(allocations){
 		res.send(allocations.toJSON());
 	}).catch(function(err){
 		console.log(err);
 		res.status(500).json({error:true, message: err.message});
 	});
 })
-.put( function(req, res, next){
+.put(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	var begins = null;
 	var ends   = null;
 
@@ -429,7 +447,8 @@ router.route('/api/allocation/:id')
 	});
 	
 })
-.delete( function(req, res, next){
+.delete(passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+ function(req, res, next){
 	models.Allocation.forge({id: req.params.id}).fetch()
 	.then(function(allocation){
 		allocation.destroy().then(function(){
@@ -442,12 +461,15 @@ router.route('/api/allocation/:id')
 	});
 });
 
-router.get('/api/unauthorized', function(req, res, next){
-	res.json({message: "YOU SHALL NOT PASS"});
-});
+router.get('/api/unauthorized',
+	function(req, res, next){
+		res.json({message: "YOU SHALL NOT PASS"});
+	}
+);
 
-router.post('/api/authenticate', 
+router.post('/api/passport/authenticate', 
   passport.authenticate('localapikey', { session: false,failureRedirect: '/api/unauthorized' }),
+
   function(req, res, next) {
     res.json({ message: "Authenticated" })
  });

@@ -7,24 +7,24 @@ var ApiKey = bookshelf.Model.extend({
 var User = bookshelf.Model.extend({
 	tableName: 'users',
 	allocations: function(){
-		return this.belongsToMany(Allocation);
+		return this.hasMany(Allocation);
 	}
 });
 
 var Asset = bookshelf.Model.extend({
 	tableName: 'assets',
 	allocations: function(){
-		return this.belongsToMany(Allocation);
+		return this.hasMany(Allocation);
 	}
 });
 
 var Allocation = bookshelf.Model.extend({
 	tableName: 'allocations',
-	users: function(){
-		return this.hasOne(User);
+	user: function(){
+		return this.belongsTo(User);
 	},
-	assets: function(){
-		return this.hasOne(Asset);
+	asset: function(){
+		return this.belongsTo(Asset);
 	}
 });
 
