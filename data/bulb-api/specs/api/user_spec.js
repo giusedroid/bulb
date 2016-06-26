@@ -1,6 +1,5 @@
 var frisby = require('frisby');
 var specConfig = require("../specConfig");
-var retrievedData = {};
 
 
 frisby.create('GET Users not authenticated')
@@ -19,17 +18,6 @@ frisby.create('GET Users authenticated')
 	firstname: String,
 	lastname: String,
 	email: String
-})
-.toss();
-
-frisby.create('GET User authenticated')
-.get( specConfig.API.url + "/user/1" + specConfig.API.getAuthString() )
-.expectStatus(200)
-.expectHeaderContains('content-type', 'application/json')
-.expectJSONTypes({
-	id: Number,
-	firstname: String,
-	lastname: String
 })
 .toss();
 
@@ -54,30 +42,39 @@ frisby.create("POST User authenticated")
 	id   : Number
 })
 .afterJSON(function(res){
-	console.log("retrieved id " + res.id );
-	frisby.create("PUT User authenticated")
-	.put( specConfig.API.url + "/user/" + res.id + specConfig.API.getAuthString(), {
-		firstname : "FRISBY_EDIT",
-		lastname  : "TEST_EDIT",
-		email	  : "EMAIL_EDIT"
-	})
+	frisby.create('GET User authenticated')
+	.get( specConfig.API.url + "/user/" + res.id + specConfig.API.getAuthString() )
 	.expectStatus(200)
+	.expectHeaderContains('content-type', 'application/json')
 	.expectJSONTypes({
-		error: Boolean,
-		data : String
-	})
-	.afterJSON(function(){
-		frisby.create("DELETE User authenticated")
-		.delete( specConfig.API.url + "/user/" + res.id + specConfig.API.getAuthString())
+		id: Number,
+		firstname: String,
+		lastname: String
+	}).afterJSON(function(){
+		frisby.create("PUT User authenticated")
+		.put( specConfig.API.url + "/user/" + res.id + specConfig.API.getAuthString(), {
+			firstname : "FRISBY_EDIT",
+			lastname  : "TEST_EDIT",
+			email	  : "EMAIL_EDIT"
+		})
 		.expectStatus(200)
 		.expectJSONTypes({
 			error: Boolean,
 			data : String
 		})
+		.afterJSON(function(){
+			frisby.create("DELETE User authenticated")
+			.delete( specConfig.API.url + "/user/" + res.id + specConfig.API.getAuthString())
+			.expectStatus(200)
+			.expectJSONTypes({
+				error: Boolean,
+				data : String
+			})
+			.toss();
+		})
 		.toss();
 	})
 	.toss();
-
 })
 .toss();
 
