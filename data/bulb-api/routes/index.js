@@ -215,6 +215,7 @@ router.route('/api/allocation')
 	// not(a or b) === not(a) and not(b)
 
 	var begins, ends;
+	var retrieved = {};
 
 	if( req.body.begins !== undefined && req.body.ends!== undefined){
 		begins = new Date( req.body.begins );
@@ -235,6 +236,41 @@ router.route('/api/allocation')
 	}
 
 	new models.User().where({id: req.body.userId}).fetch()
+	.then(function( user ){
+		retrieved.user = user;
+		return new models.Asset().where({id: req.body.assetId}).fetch();
+	})
+	.then(function( asset ){
+		retrieved.asset = asset;
+		return new 	models.Allocation().where({asset_id: retrieved.asset.get('id')})
+				   	.where("ends", ">=", begins)
+				   	.where("begins", "<=", ends)
+				   	.fetchAll({withRelated:['user', 'asset']});
+	})
+	.then(function(allocation){
+		if( allocation.length === 0){
+			return models.Allocation.forge({
+						name: req.body.name,
+						begins: begins,
+						ends: ends,
+						user_id: retrieved.user.get('id'),
+						asset_id: retrieved.asset.get('id')
+					}).save();
+		}else{
+			var err = new Error(appConfig.ERROR.not_created("Allocation", "Target allocation overlaps with other"));
+			err.allocations = allocation;
+			throw err;
+		}
+	})
+	.then( function(allocation){
+		res.json({error:false, id: allocation.get('id')});
+	})
+	.catch(function(err){
+		res.status(500).json({error:true, message:err.message, data: err.allocations || []});
+	});
+
+	/*
+	new models.User().where({id: req.body.userId}).fetch()
 	.then(function(user){
 		new models.Asset().where({id: req.body.assetId}).fetch()
 		.then(function(asset){
@@ -248,7 +284,7 @@ router.route('/api/allocation')
 						name: req.body.name,
 						begins: begins,
 						ends: ends,
-						user_id: asset.get('id'),
+						user_id: user.get('id'),
 						asset_id: asset.get('id')
 					}).save()
 					.then(function(allocation){res.json({error:false, id: allocation.get('id')})})
@@ -265,6 +301,7 @@ router.route('/api/allocation')
 			}).catch(function(err){ res.status(500).json({error:true, message:err.message});}); 
 		}).catch(function(err){ res.status(500).json({error:true, message:appConfig.ERROR.not_found("Asset", err.message)});}); // ASSET NOT FOUND
 	}).catch(function(err){ res.status(500).json({error:true, message:appConfig.ERROR.not_found("User", err.message)});}); // USER NOT FOUND
+	*/
 });
 
 // [R] GET  [active allocation]
